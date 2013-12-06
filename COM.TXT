@@ -1,0 +1,49 @@
+                                ÄÄÍÍ[ Doo/2 ]ÍÍÄÄ
+
+                           Revolutionary BBS Software!
+
+
+	Well, this is Doo/2 (Not permanent (maybe)).  Written completly from 
+scratch in C (Turbo C++ of course).  Hmmm, well, below I will describe my
+routines, etc..
+
+ÄÄo Message Bases
+
+Major topic that took some time (all of homeroom!) to develop..
+
+
+ø File structure of Message Bases:
+
+	All files dealing with message bases are stored in the Supprt Directory.
+The Index to all the boards in the current conference is stored in ccMSG.IDX,
+with "cc" being the current conference number.  The header, which contains
+such information as Title, Poster, Msg. Number, etc., is stored in a file
+called ccMSGbb.HDR, with "cc" being the current conference and "bb" being the
+current board number.  Probabaly the most important information the header
+file stores is the pointers to data and the next message.  It is stored in
+two varibles: datapoint and nextpoint.  "nextpoint" is the number-pointer to 
+the next message.  "datapoint" is the byte-pointer to the text data.  This is
+held in the file called ccMSGbb.DAT, each block of text is serparated by a 
+(null).  This is shown as follows:
+
+
+  Header                      Data
+ 
+  ------
+  | 0  | <- 1st msg #
+  ------ 5                -> ------ 0
+->| 2  |                  |  |    |
+| | 0  | <-----------------  |    |
+| ------ 25   |              --00-- 200
+| | 3  |      |              |    |
+| | 200|      |              |    |
+| ------ 45   |              --00-- 400
+| | 0  |      |              |    |
+| | 400|      |              |    |
+| ------ 65   |              --00-- 600
+|             |
+|             |
+|             -> Pointer to current message data
+|
+|
+-> Pointer to next header data

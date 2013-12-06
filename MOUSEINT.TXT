@@ -1,0 +1,197 @@
+Mouse interrupt stuff...
+
+--------------------------------------------------
+INT 33 - MS MOUSE - RESET DRIVER AND READ STATUS
+	AX = 0000h
+Return: AX = status
+	    0  hardware/driver not installed
+	    -1 hardware/driver installed
+	BX = number of buttons
+	    -1 two buttons
+	    0  other than two
+	    3  Mouse Systems mouse
+--------------------------------------------------
+INT 33 - MS MOUSE - SHOW MOUSE CURSOR
+	AX = 0001h
+--------------------------------------------------
+INT 33 - MS MOUSE - HIDE MOUSE CURSOR
+	AX = 0002h
+Note: multiple calls to hide the cursor will require multiple calls to
+      function 01h to unhide it.
+--------------------------------------------------
+INT 33 - MS MOUSE - RETURN POSITION AND BUTTON STATUS
+	AX = 0003h
+Return: BX = button status
+	   bit 0  left button pressed if 1
+	   bit 1  right button pressed if 1
+	   bit 2  middle button pressed if 1 (Mouse Systems mouse)
+	CX = column
+	DX = row
+--------------------------------------------------
+INT 33 - MS MOUSE - POSITION MOUSE CURSOR
+	AX = 0004h
+	CX = column
+	DX = row
+--------------------------------------------------
+INT 33 - MS MOUSE - RETURN BUTTON PRESS DATA
+	AX = 0005h
+	BX = button
+	    0 left
+	    1 right
+	    2 middle (Mouse Systems mouse)
+Return: AX = button states
+	    bit 0 left button pressed if 1
+	    bit 1 right button pressed if 1
+	    bit 2 middle button pressed if 1 (Mouse Systems mouse)
+	BX = number of times specified button has been pressed since last call
+	CX = column at time specified button was last pressed
+	DX = row at time specified button was last pressed
+--------------------------------------------------
+INT 33 - MS MOUSE - RETURN BUTTON RELEASE DATA
+	AX = 0006h
+	BX = button
+	    0 left
+	    1 right
+	    2 middle (Mouse Systems mouse)
+Return: AX = button states
+	    bit 0 left button pressed if 1
+	    bit 1 right button pressed if 1
+	    bit 2 middle button pressed if 1 (Mouse Systems mouse)
+	BX = number of times specified button has been released since last call
+	CX = column at time specified button was last released
+	DX = row at time specified button was last released
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE HORIZONTAL CURSOR RANGE
+	AX = 0007h
+	CX = minimum column
+	DX = maximum column
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE VERTICAL CURSOR RANGE
+	AX = 0008h
+	CX = minimum row
+	DX = maximum row
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE GRAPHICS CURSOR
+	AX = 0009h
+	BX = column of cursor hot spot in bitmap (-16 to 16)
+	CX = row of cursor hot spot (-16 to 16)
+	ES:DX -> bitmap
+		16 words screen mask
+		16 words cursor mask
+		    each word defines the sixteen pixels of a row, low bit
+		    rightmost
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE TEXT CURSOR
+	AX = 000Ah
+	BX = hardware/software text cursor
+	    0 software
+		CX = screen mask
+		DX = cursor mask
+	    1 hardware
+		CX = start scan line
+		DX = end scan line
+Note: when the software cursor is selected, the char/attribute data at the
+      current screen position is ANDed with the screen mask and then XORed
+      with the cursor mask
+--------------------------------------------------
+INT 33 - MS MOUSE - READ MOTION COUNTERS
+	AX = 000Bh
+Return: CX = number of mickeys mouse moved horizontally since last call
+	DX = number of mickeys mouse moved vertically
+Notes: a mickey is the smallest increment the mouse can sense
+       positive values indicate up/right
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE INTERRUPT SUBROUTINE PARAMETERS
+	AX = 000Ch
+	CX = call mask
+	     bit 0 call if mouse moves
+	     bit 1 call if left button pressed
+	     bit 2 call if left button released
+	     bit 3 call if right button pressed
+	     bit 4 call if right button released
+	     bit 5 call if middle button pressed (Mouse Systems mouse)
+	     bit 6 call if middle button released (Mouse Systems mouse)
+	ES:DX = address of FAR routine
+Note: when the subroutine is called, it is passed the following values:
+	AX = condition mask (same bit assignments as call mask)
+	BX = button state
+	CX = cursor column
+	DX = cursor row
+	DI = horizontal mickey count
+	SI = vertical mickey count
+--------------------------------------------------
+INT 33 - MS MOUSE - LIGHT PEN EMULATION ON
+	AX = 000Dh
+--------------------------------------------------
+INT 33 - MS MOUSE - LIGHT PEN EMULATION OFF
+	AX = 000Eh
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE MICKEY/PIXEL RATIO
+	AX = 000Fh
+	CX = number of mickeys per 8 pixels horizontally
+	DX = number of mickeys per 8 pixels vertically
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE SCREEN REGION FOR UPDATING
+	AX = 0010h
+	CX,DX = X,Y coordinates of upper left corner
+	SI,DI = X,Y coordinates of lower right corner
+Note: mouse cursor is hidden during updating, and needs to be explicitly turned
+	on again
+--------------------------------------------------
+INT 33 - PCMOUSE - SET LARGE GRAPHICS CURSOR BLOCK
+	AX = 0012h
+	BH = cursor width in words
+	CH = rows in cursor
+	BL = horizontal hot spot (-16 to 16)
+	CL = vertical hot spot (-16 to 16)
+	ES:DX -> bit map of screen and cursor maps
+Return: AX = -1 if successful
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE DOUBLE-SPEED THRESHOLD
+	AX = 0013h
+	DX = threshold speed in mickeys/second, 0 = default of 64/second
+Note:	if speed exceeds threshold, the cursor's on-screen motion is doubled
+--------------------------------------------------
+INT 33 - MS MOUSE - EXCHANGE INTERRUPT SUBROUTINES
+	AX = 0014h
+	???
+--------------------------------------------------
+INT 33 - MS MOUSE - RETURN DRIVER STORAGE REQUIREMENTS
+	AX = 0015h
+Return: BX = size of buffer needed to store driver state
+--------------------------------------------------
+INT 33 - MS MOUSE - SAVE DRIVER STATE
+	AX = 0016h
+	ES:DX -> buffer for driver state
+--------------------------------------------------
+INT 33 - MS MOUSE - RESTORE DRIVER STATE
+	AX = 0017h
+	ES:DX -> buffer containing saved state
+--------------------------------------------------
+INT 33 - MS MOUSE - DEFINE DISPLAY PAGE NUMBER
+	AX = 001Dh
+	???
+--------------------------------------------------
+INT 33 - MS MOUSE - RETURN DISPLAY PAGE NUMBER
+	AX = 001Eh
+Return: ???
+--------------------------------------------------
+INT 33 - PCMOUSE - GET MSMOUSE STORAGE REQUIREMENTS
+	AX = 0042h
+Return: AX = FFFFh successful
+	    BX = buffer size in bytes for functions 50h and 52h
+	   = 0	 MSMOUSE not installed
+	   = 42h functions 42h, 50h, and 52h not supported
+--------------------------------------------------
+INT 33 - PCMOUSE - SAVE MSMOUSE STATE
+	AX = 0050h
+	BX = buffer size
+	ES:DX -> buffer
+Return: AX = FFFFh if successful
+--------------------------------------------------
+INT 33 - PCMOUSE - RESTORE MSMOUSE STATE
+	AX = 0052h
+	BX = buffer size
+	ES:DX -> buffer
+Return: AX = FFFFh if successful
+--------------------------------------------------
